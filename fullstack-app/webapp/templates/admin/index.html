@@ -1,0 +1,12 @@
+{% extends "admin/index.html" %}
+
+{% block content %}
+<div style="margin-bottom: 20px; padding: 15px; background-color: #e2e8f0; border-radius: 8px; border: 1px solid #cbd5e1;">
+    <h2 style="margin-top: 0; color: #1e293b;">📊 Экспорт данных</h2>
+    <p style="color: #475569;">Скачивайте отчеты по заказам, товарам и отзывам в формате Excel.</p>
+    <a href="{% url 'admin-reports' %}" style="background-color: #417690; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px; display: inline-block; font-weight: bold;">
+        Перейти к отчётам
+    </a>
+</div>
+{{ block.super }}
+{% endblock %}

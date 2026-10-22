@@ -1,0 +1,115 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ product.name }}</title>
+    <link href="{% static 'webapp/css/bootstrap.min.css' %}" rel="stylesheet">
+</head>
+<body class="bg-light">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'index' %}">🧱 Мой Магазин</a>
+            <div class="d-flex">
+                {% if user.is_authenticated %}
+                    <span class="navbar-text text-white me-3">Привет, <strong>{{ user.username }}</strong></span>
+                    <a href="{% url 'cart_detail' %}" class="btn btn-outline-light btn-sm me-2">Корзина</a>
+                    <form action="{% url 'logout' %}" method="post" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-danger btn-sm">Выйти</button>
+                    </form>
+                {% else %}
+                    <a class="btn btn-outline-light btn-sm me-2" href="{% url 'login' %}">Войти</a>
+                    <a class="btn btn-success btn-sm" href="{% url 'register' %}">Регистрация</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mb-5">
+        <div class="row">
+            <!-- Изображение и основная информация о товаре -->
+            <div class="col-md-6">
+                {% if product.image_url %}
+                    <img src="{{ product.image_url }}" class="img-fluid rounded shadow-sm" alt="{{ product.name }}">
+                {% else %}
+                    <svg class="bd-placeholder-img img-fluid rounded shadow-sm" width="100%" height="400" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: Thumbnail" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="#55595c"></rect><text x="50%" y="50%" fill="#eceeef" dy=".3em" text-anchor="middle">Нет фото</text></svg>
+                {% endif %}
+            </div>
+            <div class="col-md-6">
+                <h1 class="mb-3">{{ product.name }}</h1>
+                <p class="lead">{{ product.description }}</p>
+                <h3 class="text-primary mb-4">{{ product.price }} руб.</h3>
+                
+                {% if user.is_authenticated %}
+                    <a href="{% url 'add_to_cart' product.id %}" class="btn btn-success btn-lg">Добавить в корзину</a>
+                {% else %}
+                    <div class="alert alert-info" role="alert">
+                        Пожалуйста, <a href="{% url 'login' %}" class="alert-link">войдите</a> или <a href="{% url 'register' %}" class="alert-link">зарегистрируйтесь</a>, чтобы добавить товар в корзину.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <hr class="my-5">
+
+        <!-- Секция отзывов -->
+        <div class="row">
+            <div class="col-md-8">
+                <h3 class="mb-4">Отзывы ({{ reviews.count }})</h3>
+                {% for review in reviews %}
+                    <div class="card mb-3 shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <h5 class="card-title">{{ review.author.username }}</h5>
+                                <small class="text-muted">{{ review.created_at|date:"d M Y" }}</small>
+                            </div>
+                            <div class="mb-2">
+                                {% for i in "12345"|make_list %}
+                                    {% if forloop.counter <= review.rating %}
+                                        <span class="text-warning">★</span>
+                                    {% else %}
+                                        <span class="text-secondary">★</span>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                            <p class="card-text">{{ review.text }}</p>
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="alert alert-secondary" role="alert">
+                        Пока нет отзывов на этот товар.
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="col-md-4">
+                <!-- Форма для добавления отзыва -->
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h4 class="card-title">Оставить отзыв</h4>
+                        {% if can_review %}
+                            <form method="post">
+                                {% csrf_token %}
+                                {% for field in form %}
+                                    <div class="mb-3">
+                                        <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                                        {{ field }}
+                                    </div>
+                                {% endfor %}
+                                <button type="submit" class="btn btn-primary w-100">Отправить</button>
+                            </form>
+                        {% elif user.is_authenticated %}
+                            <p class="text-muted">Вы сможете оставить отзыв после покупки этого товара.</p>
+                        {% else %}
+                            <p class="text-muted">Пожалуйста, <a href="{% url 'login' %}">войдите</a>, чтобы оставить отзыв.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{% static 'webapp/js/bootstrap.bundle.min.js' %}"></script>
+</body>
+</html>

@@ -1,0 +1,59 @@
+{% extends "admin/base_site.html" %}
+
+{% block title %}Отчёты в Excel{% endblock %}
+
+{% block content %}
+<div id="content-main">
+    <h1>📊 Отчёты</h1>
+
+    <!-- НОВЫЙ БЛОК: Детализация продаж -->
+    <div class="module" style="padding: 20px; margin-bottom: 20px; border-left: 5px solid #28a745;">
+        <h2>🛒 Детализация продаж (Кто, что и когда купил)</h2>
+        <p>Выгружает список всех оплаченных товаров за выбранный период.</p>
+        <form method="get" action="{% url 'admin-reports-sales' %}" style="background: #f8f9fa; padding: 15px; border-radius: 5px;">
+            <p>
+                <label>С даты: <input type="date" name="date_from" style="padding: 5px;"></label>
+                &nbsp;&nbsp;
+                <label>По дату: <input type="date" name="date_to" style="padding: 5px;"></label>
+            </p>
+            <button type="submit" class="button default" style="background-color: #28a745; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer;">
+                📥 Скачать детализацию (Excel)
+            </button>
+        </form>
+    </div>
+
+    <div class="module" style="padding: 20px; margin-bottom: 20px;">
+        <h2>Заказы (Общая сводка)</h2>
+        <p>Всего заказов в базе: <strong>{{ orders_count }}</strong></p>
+        <form method="get" action="{% url 'admin-reports-orders' %}">
+            <p>
+                <label>С даты: <input type="date" name="date_from"></label>
+                &nbsp;
+                <label>По дату: <input type="date" name="date_to"></label>
+            </p>
+            <p>
+                <label>Статус:
+                    <select name="status">
+                        <option value="">— все —</option>
+                        <option value="paid">только оплаченные</option>
+                        <option value="unpaid">только неоплаченные</option>
+                    </select>
+                </label>
+            </p>
+            <button type="submit" class="button default">Скачать заказы</button>
+        </form>
+    </div>
+
+    <div class="module" style="padding: 20px; margin-bottom: 20px;">
+        <h2>Товары</h2>
+        <p>Всего товаров: <strong>{{ products_count }}</strong></p>
+        <p><a class="button" href="{% url 'admin-reports-products' %}">Скачать Excel</a></p>
+    </div>
+
+    <div class="module" style="padding: 20px;">
+        <h2>Отзывы</h2>
+        <p>Всего отзывов: <strong>{{ reviews_count }}</strong></p>
+        <p><a class="button" href="{% url 'admin-reports-reviews' %}">Скачать Excel</a></p>
+    </div>
+</div>
+{% endblock %}

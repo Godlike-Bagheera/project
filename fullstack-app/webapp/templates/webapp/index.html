@@ -1,0 +1,101 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Интернет-магазин</title>
+    <link href="{% static 'webapp/css/bootstrap.min.css' %}" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+    <!-- Шапка сайта -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'index' %}">🧱 Мой Магазин</a>
+            <div class="d-flex align-items-center">
+                {% if user.is_authenticated %}
+                    <span class="navbar-text text-white me-3">Привет, <strong>{{ user.username }}</strong></span>
+                    <a href="{% url 'cart_detail' %}" class="btn btn-outline-light btn-sm me-2">Корзина</a>
+                    <form action="{% url 'logout' %}" method="post" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-danger btn-sm">Выйти</button>
+                    </form>
+                {% else %}
+                    <a class="btn btn-outline-light btn-sm me-2" href="{% url 'login' %}">Войти</a>
+                    <a class="btn btn-success btn-sm" href="{% url 'register' %}">Регистрация</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mb-5">
+        
+        <!-- БЛОК АДМИНИСТРАТОРА (Виден только если is_staff) -->
+        {% if user.is_staff %}
+        <div class="card shadow-sm mb-4 border-success">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">👑 Панель администратора: Детализация продаж</h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted mb-3">Выберите период, чтобы выгрузить в Excel информацию о том, кто, что и когда купил.</p>
+                <form method="get" action="{% url 'admin-reports-sales' %}" class="row g-3 align-items-end">
+                    <div class="col-auto">
+                        <label for="date_from" class="form-label">С даты:</label>
+                        <input type="date" id="date_from" name="date_from" class="form-control">
+                    </div>
+                    <div class="col-auto">
+                        <label for="date_to" class="form-label">По дату:</label>
+                        <input type="date" id="date_to" name="date_to" class="form-control">
+                    </div>
+                    <div class="col-auto">
+                        <button type="submit" class="btn btn-success">📥 Скачать детализацию (Excel)</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        {% endif %}
+        <!-- КОНЕЦ БЛОКА АДМИНИСТРАТОРА -->
+
+        <!-- Каталог -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="mb-0">Каталог товаров</h2>
+            <a href="{% url 'export_price_list' %}" class="btn btn-outline-success">
+                📥 Скачать прайс-лист (Excel)
+            </a>
+        </div>
+
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            {% for product in products %}
+                <div class="col">
+                    <div class="card h-100 shadow-sm">
+                        {% if product.image_url %}
+                            <img src="{{ product.image_url }}" class="card-img-top" alt="{{ product.name }}" style="height: 200px; object-fit: cover;">
+                        {% else %}
+                            <svg class="bd-placeholder-img card-img-top" width="100%" height="200" xmlns="http://w3.org" role="img" aria-label="Placeholder: Thumbnail" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="#55595c"></rect><text x="50%" y="50%" fill="#eceeef" dy=".3em" text-anchor="middle">Нет фото</text></svg>
+                        {% endif %}
+                        
+                        <div class="card-body">
+                            <h5 class="card-title fw-bold">{{ product.name }}</h5>
+                            <p class="card-text text-muted text-truncate">{{ product.description }}</p>
+                        </div>
+                        
+                        <div class="card-footer bg-white border-top-0 d-flex justify-content-between align-items-center">
+                            <span class="fs-5 fw-bold text-dark">{{ product.price }} руб.</span>
+                            <a href="{% url 'product_detail' product.id %}" class="btn btn-sm btn-primary">Подробнее</a>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="col-12">
+                    <div class="alert alert-info" role="alert">
+                        В каталоге пока нет доступных товаров. Зайдите в админку, чтобы добавить их.
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script src="{% static 'webapp/js/bootstrap.bundle.min.js' %}"></script>
+</body>
+</html>
